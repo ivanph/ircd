@@ -3,15 +3,15 @@
 // This was written with Node version 0.1.16. An earlier version will not
 // work with this script, however later versions might.
 
-port = 6667;
-serverName = "irc.nodejs.org";
-topic = "node.js ircd https://gist.github.com/a3d0bbbff196af633995";
+const port = 6667;
+const serverName = "irc.nodejs.org";
+const topic = "node.js ircd https://gist.github.com/a3d0bbbff196af633995";
 
 
-tcp = require("tcp");
-sys = require("sys");
-puts = sys.puts;
-inspect = sys.inspect;
+const tcp = require("net");
+const util = require("util");
+const puts = console.log.bind(console)
+const inspect = util.inspect;
 
 debugLevel = 0;
 
@@ -28,8 +28,8 @@ function simpleString (s) {
 }
 
 
-channels = {};
-users = {};
+const channels = {};
+const users = {};
 
 
 // Channel
