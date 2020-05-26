@@ -210,7 +210,7 @@ User.prototype.sendMessage = function (msg, from) {
     debug("send " + ": " + inspect(packet));
   }
 
-  this.socket.send(packet, "utf8");
+  this.socket.write(packet, "utf8");
 };
 
 User.prototype.prefix = function () {
@@ -317,7 +317,7 @@ User.prototype.quit = function (msg) {
   while (this.channels.length > 0) {
     this.channels.pop().quit(this, msg);
   }
-  this.socket.close();
+  this.socket.destroy();
 };
 
 User.prototype.parse = function (message) {
@@ -387,7 +387,7 @@ User.prototype.parse = function (message) {
 
     case "PRIVMSG":
       var matches = /^([^\s]+)\s+:(.*)$/.exec(rest);
-      if (!match) return; // ignore
+      if (!matches) return; // ignore
       var target = matches[1];
       var message = matches[2];
       this.privmsg(target, message);
@@ -430,7 +430,7 @@ server = tcp.createServer(function (socket) {
   // (We're adding on having a high-level "catch all uncaught exceptions"
   // feature soon, which would also solve this proble.)
 
-  socket.addListener("receive", function (packet) {
+  socket.on("data", function (packet) {
     try {
       buffer += packet;
       var i;
@@ -449,7 +449,7 @@ server = tcp.createServer(function (socket) {
     }
   });
 
-  socket.addListener("eof", function (packet) {
+  socket.on("end", function (packet) {
     try {
       user.quit("connection reset by peer");
     } catch (e) {
@@ -457,7 +457,7 @@ server = tcp.createServer(function (socket) {
     }
   });
 
-  socket.addListener("timeout", function (packet) {
+  socket.on("timeout", function (packet) {
     try {
       user.quit("idle timeout");
     } catch (e) {
@@ -469,5 +469,3 @@ server = tcp.createServer(function (socket) {
 server.listen(port);
 puts("irc.js on port " + port);
 
-repl = require("repl");
-repl.start("ircd> ");
